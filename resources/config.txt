@@ -1,0 +1,86 @@
+# Defines which nodes are used in the system and how to connect to them.
+# This element should only be referenced during the constructor's initial
+# setup.
+# All names must be unique.
+# No other nodes are known.
+# These names will be used for src and dest addresses for the Message
+# The local node’s name is included in this list
+configuration :
+  parameters : 
+    clockType : vector
+  nodes :
+    - name : alice
+      ip   : 127.0.0.1
+      port : 4001
+    - name : bob
+      ip   : 127.0.0.1
+      port : 4002
+    - name : charlie
+      ip   : 127.0.0.1
+      port : 4003
+    - name : daphnie
+      ip   : 127.0.0.1
+      port : 4004
+    - name : eric
+      ip   : 127.0.0.1
+      port : 4005
+    - name : frank
+      ip   : 127.0.0.1
+      port : 4006
+    - name : george
+      ip   : 127.0.0.1
+      port : 4007
+  groups :
+    - name : alice
+      members :
+        - alice
+        - bob
+        - charlie
+    - name : bob
+      members :
+        - bob
+        - daphnie
+        - frank
+    - name : charlie
+      members :
+        - charlie
+        - eric
+        - frank
+    - name : daphnie
+      members :
+        - alice
+        - daphnie
+        - eric
+    - name : eric
+      members :
+        - bob
+        - eric
+        - george
+    - name : frank
+      members :
+        - alice
+        - frank
+        - george
+    - name : george
+      members :
+        - charlie
+        - daphnie
+        - george
+# This is the incoming port on which MP will listen
+# May be changed for further communication as usual
+sendRules :
+  - action : dropAfter
+    src    : alice
+    dest   : bob
+    kind   : multicast
+    seqNum : 1000
+
+receiveRules :
+  - action : delay
+    dest : logger
+    seqNum : 20000
+  - action : dropAfter
+    src : armin
+    seqNum : 10000
+# Everyone sees two copies of charlie's messages
+# even though he only sends one
