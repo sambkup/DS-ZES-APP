@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .gradle
 /local.properties
 /.idea/workspace.xml
@@ -5,3 +6,6 @@
 .DS_Store
 /build
 /captures
+=======
+/bin/
+>>>>>>> 1ffb6e5bacd8794024aaec444aecb5a2f8c48371
