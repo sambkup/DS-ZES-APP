@@ -7,4 +7,6 @@
         <item>Food</item>
         <item>First-aid</item>
     </string-array>
+    <string name="title_activity_socket">SocketActivity</string>
+    <string name="title_activity_client">ClientActivity</string>
 </resources>

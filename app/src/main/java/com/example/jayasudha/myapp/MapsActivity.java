@@ -1,8 +1,11 @@
 package com.example.jayasudha.myapp;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -15,25 +18,32 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -43,22 +53,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LatLng latLng;
     private Marker marker;
     Geocoder geocoder;
-
+    static final int STATIC_INTEGER_VALUE = 1;
+    static final String PUBLIC_STATIC_STRING_IDENTIFIER = "jsonObject";
 
 
     private GoogleApiClient mGoogleApiClient;
     private Location mCurrentLocation;
-
-    private final int[] MAP_TYPES = { GoogleMap.MAP_TYPE_SATELLITE,
-            GoogleMap.MAP_TYPE_NORMAL,
-            GoogleMap.MAP_TYPE_HYBRID,
-            GoogleMap.MAP_TYPE_TERRAIN,
-            GoogleMap.MAP_TYPE_NONE };
-    private int curMapTypeIndex = 0;
-    private static final double CMU_LAT = 40.400920,
-                                CMU_LON = -80.103623,
-                                GHC_LAT = 40.443838,
-                                GHC_LON = -79.951020;
 
 
 
@@ -70,11 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         geocoder = new Geocoder(this);
-
-        Toast.makeText(MapsActivity.this,"onCreate ", Toast.LENGTH_LONG).show();
-
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+      // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -84,16 +80,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
             mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         }
-        // Get a reference to the AutoCompleteTextView in the layout
-        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.editLocation);
-        // Get the string array
-        String[] destinations = getResources().getStringArray(R.array.destination_array);
-        // Create the adapter and set it to the AutoCompleteTextView
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, destinations);
-        textView.setAdapter(adapter);
-
-
     }
     @Override
     protected void onResume() {
@@ -126,27 +112,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onMapClick(LatLng point) {
                 //save current location
                 LatLng latLng = point;
-                String message = String.valueOf(point.latitude)+" "+String.valueOf(point.longitude);
-                Toast.makeText(MapsActivity.this,message, Toast.LENGTH_LONG).show();
+                String message = String.valueOf(point.latitude) + " " + String.valueOf(point.longitude);
+                Toast.makeText(MapsActivity.this, message, Toast.LENGTH_LONG).show();
 
-                List<Address> addresses = new ArrayList<>();
-                try {
-                    addresses = geocoder.getFromLocation(point.latitude, point.longitude, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                android.location.Address address = addresses.get(0);
-
-                if (address != null) {
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                        sb.append(address.getAddressLine(i) + "\n");
-                    }
-                    Toast.makeText(MapsActivity.this, sb.toString(), Toast.LENGTH_LONG).show();
-                }
-
-                //remove previously placed Marker
+                 //remove previously placed Marker
                 if (marker != null) {
                     marker.remove();
                 }
@@ -168,7 +137,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double longitude = location.getLongitude();
 
         // Creating a LatLng object for the current location
-        LatLng latLng = new LatLng(latitude, longitude);
+
+
+        latLng = new LatLng(latitude, longitude);
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
@@ -215,7 +186,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         enableMyLocation();
         mMap.setMyLocationEnabled(true);
 
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
 
@@ -268,6 +239,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
 
 
+
         } else if (mMap != null) {
             // Access to the location has been granted to the app.
             mMap.setMyLocationEnabled(true);
@@ -282,31 +254,90 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // (the camera animates to the user's current position).
         return false;
     }
+    public void getRoute(View view)throws IOException{
+        Intent startClientActivity = new Intent(this, ClientActivity.class);
+        String currentPos = Double.toString(latLng.latitude)+","+Double.toString(latLng.longitude);
+        startClientActivity.putExtra("currentPosition",currentPos);
+        startActivityForResult(startClientActivity,STATIC_INTEGER_VALUE);
+    }
+    public void displayRouteFromJSON(String jsonObject)throws IOException,JSONException{
+        System.out.println("inside displayRoute");
+        JSONObject pointsJSON = null;
+        try {
+            pointsJSON = new JSONObject(jsonObject);
+        }catch (Exception ex){
+            System.out.println("error in displayRouteFromJSON in creating JSONOBJ");
+          //  ex.printStackTrace();
+        }
+        Iterator<String> keys = pointsJSON.keys();
+        ArrayList<LatLng> latLngs = new ArrayList<>();
 
-    public void displayRoute(String filename){
-        ArrayList<LatLng> latLngsList = new ArrayList<LatLng>();
+        while( keys.hasNext() ) {
+            String key = (String)keys.next();
+            System.out.println("key"+key);
 
-        for(LatLng eachPoint : latLngsList){
-            MarkerOptions options = new MarkerOptions().position( eachPoint );
+                String coordinates = pointsJSON.get(key).toString();
+                String latlng[] = coordinates.split(",");
+                Double lat = Double.parseDouble(latlng[0]);
+                Double lng = Double.parseDouble(latlng[1]);
+                LatLng coordinate = new LatLng(lat,lng);
+
+                latLngs.add(coordinate);
+                System.out.println("latlngs "+coordinate.toString());
 
 
-            options.icon( BitmapDescriptorFactory.defaultMarker() );
-            mMap.addMarker(options );
 
         }
+        LatLngBounds.Builder b = new LatLngBounds.Builder();
+
+
+
+        for(LatLng eachPoint : latLngs){
+            MarkerOptions options = new MarkerOptions().position( eachPoint );
+            b.include(eachPoint);
+            options.icon(BitmapDescriptorFactory.defaultMarker());
+            mMap.addMarker(options);
+
+
+        }
+        LatLngBounds bounds = b.build();
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,100,100,5);
+        mMap.animateCamera(cu);
+
+        Polyline line = mMap.addPolyline(new PolylineOptions().addAll(latLngs).width(7).color(Color.RED));
+        line.setPoints(latLngs);
+
+
+
+
     }
-    public void geoLocate(View view)throws IOException {
-       // EditText editText = new EditText(this);
-
-        EditText et = (EditText)findViewById(R.id.editLocation);
-
-        String location = et.getText().toString();
-        Geocoder gc = new Geocoder(this);
-        List<Address> list = gc.getFromLocationName(location,1);
-        Address add = list.get(0);
-        String locality = add.getLocality();
-        Toast.makeText(this,location,Toast.LENGTH_LONG).show();
-
+    @Override
+    public void onActivityResult (int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        String jsonObject = null;
+        System.out.println("inside onActivityResult");
+        switch(requestCode) {
+            case (STATIC_INTEGER_VALUE) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    System.out.println("result code is Ok");
+                    jsonObject = data.getStringExtra(PUBLIC_STATIC_STRING_IDENTIFIER);
+                    try {
+                        displayRouteFromJSON(jsonObject);
+                    }catch(Exception ex){
+                        System.out.println("error in calling displayRoutFromJSON");
+                      //  ex.printStackTrace();
+                    }
+                }
+                break;
+            }
+        }
+        try {
+            System.out.println("calling display function");
+            displayRouteFromJSON(jsonObject);
+        }catch(Exception ex){
+            System.out.println("error in calling function");
+            ex.printStackTrace();
+        }
     }
 
 

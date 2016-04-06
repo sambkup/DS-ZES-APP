@@ -8,11 +8,14 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name = "com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    <uses-permission android:name = "android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -40,13 +43,21 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAVpgpm2LY-ApVTYQJQsigYmUZg-FEug5I"/>
-            
-
+            android:value="AIzaSyAVpgpm2LY-ApVTYQJQsigYmUZg-FEug5I" />
 
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" >
+        </activity>
+        <activity
+            android:name=".SocketActivity"
+            android:label="@string/title_activity_socket"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <activity
+            android:name=".ClientActivity"
+            android:label="@string/title_activity_client"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>
 
