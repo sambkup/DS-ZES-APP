@@ -1,27 +1,21 @@
-package com.example.jayasudha.myapp.communication;
+package communication;
 
 import java.io.Serializable;
-
-import com.example.jayasudha.myapp.utils.Node;
 import org.json.JSONObject;
 
+import com.example.jayasudha.myapp.utils.Node;
+
 public class Message implements Serializable {
-	private static final long serialVersionUID = 1L;
-	String destIP;
-	int destPort;
-	messageKind kind;
-	Node node;
-	String destLoc; //lat,lng, to store the destination of user
-	String startNodeIP;
-	JSONObject jsonRoute;
-
-
-	String phoneIP;
-	int phonePort;
-
-
-
-
+	private static final long serialVersionUID = 45;
+	public String destIP;
+	public int destPort;
+	public messageKind kind;
+	public Node node;
+	public String destLoc; //lat,lng, to store the destination of user
+	public String startNodeIP;
+	public JSONObject jsonRoute;
+	public String phoneIP;
+	public int phonePort;
 	int seqNum;
 
 	public enum messageKind{
@@ -37,8 +31,6 @@ public class Message implements Serializable {
 		NOT_MY_AREA, //response sent from node to phone saying the user is not in user's patrol area
 		MSG_JSON //JSON Object passed around
 	}
-	//findstart
-
 
 
 	public Message(String destIP, int port, messageKind kind, Node node) {
@@ -52,7 +44,7 @@ public class Message implements Serializable {
 	public String getDestIP() {
 		return destIP;
 	}
-	
+
 	public String getDestName() {
 		return "("+this.destIP+":"+this.destPort+")";
 	}
@@ -66,10 +58,11 @@ public class Message implements Serializable {
 		return kind;
 	}
 
+
 	public void setKind(messageKind kind) {
 		this.kind = kind;
 	}
-	
+
 	/**
 	 * @return the node
 	 */
@@ -120,6 +113,7 @@ public class Message implements Serializable {
 	public void setPhoneIP(String phoneIP) { this.phoneIP = phoneIP; }
 
 	public void setPhonePort(int phonePort) {this.phonePort = phonePort;}
+
 
 
 	public void print() {

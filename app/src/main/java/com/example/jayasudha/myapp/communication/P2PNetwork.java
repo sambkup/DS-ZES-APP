@@ -1,5 +1,6 @@
 package com.example.jayasudha.myapp.communication;
 
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -13,14 +14,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import com.google.gson.Gson;
+
 
 import com.example.jayasudha.myapp.ClientActivity;
-import com.example.jayasudha.myapp.MapsActivity;
-import com.example.jayasudha.myapp.communication.Message.messageKind;
+
+import communication.Message;
+
+
+
+import communication.Message.messageKind;
 import com.example.jayasudha.myapp.process.TestBench;
 import com.example.jayasudha.myapp.utils.Node;
-
-import junit.framework.Test;
 
 import org.json.JSONObject;
 
@@ -108,7 +113,12 @@ public class P2PNetwork {
 		String ip = message.destIP;
 		int port = message.destPort;
 		System.out.println("Sending message to "+ip+":"+port);
-		System.out.println("Message "+message.toString());
+		System.out.println(message.getNode().myLocation);
+		System.out.println(message.getNode().myLocation.toString());
+
+		System.out.println(message.getNode().ip);
+		System.out.println(message.getNode().port);
+		System.out.println(message.getNode().toString());
 
 		Socket s = null;
 		Connection connection_to_use = null;
@@ -132,7 +142,12 @@ public class P2PNetwork {
 		}
 
 		System.out.println("Sending message");
-		connection_to_use.write_object(message);
+		Gson gson = new Gson();
+		String json = gson.toJson(message);
+
+
+	//	connection_to_use.write_object(message);
+		connection_to_use.write_object(json);
 		connection_to_use.close();
 
 	}

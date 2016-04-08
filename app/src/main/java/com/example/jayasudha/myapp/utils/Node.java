@@ -66,7 +66,7 @@ public class Node implements Serializable {
 
 	public String toString() {
 
-		return String.format("(%s:%d), %s, %s", ip, port,myLocation.toString());
+		return String.format("%s, %s, %s", ip, port,myLocation.toString());
 	}
 
 	public JSONObject enterJSON(JSONObject route) throws JSONException{

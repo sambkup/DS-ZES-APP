@@ -46,9 +46,9 @@ public class TestBench {
 		// initialize - get necessary parameter inputs
 
 		int port = 4053; // Ports can be in the range 4000 - 4200
-		String IP = "172.29.92.26"; // localhost
+		String IP = "192.168.0.18"; // localhost
 		//phone doesnt have range
-//		double[] range = {40.441713,-79.947789,40.443844,-79.947789};
+		double[] range = {0,0,0,0};
 //		double[] location = {40.443052,-79.944806};
 		//take this as user location
 		double[] location = {40.442546,-79.941759}; // a second spot on campus
@@ -64,13 +64,13 @@ public class TestBench {
 		// construct the required objects
 
 		//user has no region, no patrol region
-		//	region = new P2PRegion(range);
+			region = new P2PRegion(range);
 
-		//	initial_patrol_area = new NodePatrolArea(range);
+			initial_patrol_area = new NodePatrolArea(range);
 		node_loc = new NodeLocation(location);
 
 		//patrol region,patrol_area = null for phone
-		myNode = new Node(null,null,node_loc,port,IP);
+		myNode = new Node(initial_patrol_area,region,node_loc,port,IP);
 
 
 		p2p = new P2PNetwork(myNode);
