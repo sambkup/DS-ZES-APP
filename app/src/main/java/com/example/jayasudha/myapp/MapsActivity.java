@@ -55,6 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Geocoder geocoder;
     static final int STATIC_INTEGER_VALUE = 1;
     static final String PUBLIC_STATIC_STRING_IDENTIFIER = "jsonObject";
+    static String destination;
 
 
     private GoogleApiClient mGoogleApiClient;
@@ -104,7 +105,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void setUpMap() {
 
-        Toast.makeText(MapsActivity.this,"inside setupmap ", Toast.LENGTH_LONG).show();
+     //   Toast.makeText(MapsActivity.this,"inside setupmap ", Toast.LENGTH_LONG).show();
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
 
@@ -112,8 +113,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onMapClick(LatLng point) {
                 //save current location
                 LatLng latLng = point;
-                String message = String.valueOf(point.latitude) + " " + String.valueOf(point.longitude);
+                String message = String.valueOf(point.latitude) + "," + String.valueOf(point.longitude);
                 Toast.makeText(MapsActivity.this, message, Toast.LENGTH_LONG).show();
+                //set destination
+                destination = message;
 
                  //remove previously placed Marker
                 if (marker != null) {
@@ -123,6 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //place marker where user just clicked
                 marker = mMap.addMarker(new MarkerOptions().position(point).title("Destination")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+
 
             }
         });
@@ -199,6 +203,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Location myLocation = locationManager.getLastKnownLocation(provider);
         int MY_PERMISSION_ACCESS_COURSE_LOCATION = 1000;
+
+        //check validity
         if ( ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
 
             ActivityCompat.requestPermissions( this, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },
@@ -258,6 +264,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Intent startClientActivity = new Intent(this, ClientActivity.class);
         String currentPos = Double.toString(latLng.latitude)+","+Double.toString(latLng.longitude);
         startClientActivity.putExtra("currentPosition",currentPos);
+        startClientActivity.putExtra("destinationLocation",destination);
         startActivityForResult(startClientActivity,STATIC_INTEGER_VALUE);
     }
     public void displayRouteFromJSON(String jsonObject)throws IOException,JSONException{

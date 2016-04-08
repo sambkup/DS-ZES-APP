@@ -8,6 +8,7 @@ import com.example.jayasudha.myapp.utils.*;
 
 public class TestBench {
 
+
 	
 	/*
 	 * TODO:
@@ -37,18 +38,26 @@ public class TestBench {
 	static NodePatrolArea initial_patrol_area;
 	static NodeLocation node_loc;
 	static Node myNode;
+	static double[] location;
+	public static String dest;
 
-	public static void main(String[] args) {
+	public void testBench(String myLocation,String destLocation) {
 		// --------------------------------
 		// initialize - get necessary parameter inputs
 
-		int port = 4050; // Ports can be in the range 4000 - 4200
+		int port = 4053; // Ports can be in the range 4000 - 4200
 		String IP = "172.29.92.26"; // localhost
 		//phone doesnt have range
 //		double[] range = {40.441713,-79.947789,40.443844,-79.947789};
 //		double[] location = {40.443052,-79.944806};
 		//take this as user location
 		double[] location = {40.442546,-79.941759}; // a second spot on campus
+		double[] destLoc = {40.443844,-79.947789};
+
+		dest = new String();
+		//remove it if parameter passed from mapActivity is string
+		dest = dest+ String.valueOf(destLoc[0]) + ","+String.valueOf(destLoc[1]);
+		System.out.println("destination"+dest);
 
 
 		// --------------------------------
@@ -59,8 +68,10 @@ public class TestBench {
 
 		//	initial_patrol_area = new NodePatrolArea(range);
 		node_loc = new NodeLocation(location);
-		//passing region,patrol_area = null for phone
+
+		//patrol region,patrol_area = null for phone
 		myNode = new Node(null,null,node_loc,port,IP);
+
 
 		p2p = new P2PNetwork(myNode);
 

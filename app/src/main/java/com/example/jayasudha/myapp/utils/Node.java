@@ -1,5 +1,8 @@
 package com.example.jayasudha.myapp.utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 
 public class Node implements Serializable {
@@ -12,6 +15,7 @@ public class Node implements Serializable {
 	NodePatrolArea myPatrolArea;
 	public P2PRegion p2pPatrolArea;
 	public NodeLocation myLocation;
+	public String state;
 
 	public Node(NodePatrolArea myPatrolArea, P2PRegion p2pPatrolArea, NodeLocation myLocation,int port, String ip) {
 
@@ -50,9 +54,27 @@ public class Node implements Serializable {
 	public String getName(){
 		return "("+this.ip+":"+this.port+")";
 	}
-	
-	public String toString() {
-		return String.format("(%s:%d), %s, %s", ip, port,myLocation.toString() , myPatrolArea.toString());
+
+	public String getState() {
+		return state;
 	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+
+	public String toString() {
+
+		return String.format("(%s:%d), %s, %s", ip, port,myLocation.toString());
+	}
+
+	public JSONObject enterJSON(JSONObject route) throws JSONException{
+		int count = route.length();
+		count = count+1;
+		route.put(String.valueOf(count),myLocation);
+		return route;
+	}
+
 	
 }
