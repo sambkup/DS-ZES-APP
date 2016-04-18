@@ -11,6 +11,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -76,27 +77,27 @@ public class P2PNetwork {
 	}
 
 	public boolean findFirstNodeByPort(){
-		String testIP = "192.168.0.15"; //set to ip of nodes
-		int localport = this.localNode.port;
-		int startport = 4000;
-		int endport = 4200;
+		String myIP = this.localNode.ip;
+		String delims = "[.]";
+		String[] chunks = myIP.split(delims);
 
-		// TODO: randomize the start point, so the earlier ports aren't overwhelmed
-		for (int port = startport; port <= endport; port++){
-			// Ignore myself
-			if (port == localport){
+		int maxIP = 256;
+		String testIP;
+		for (int i = 1; i<maxIP; i++){
+			if (Integer.toString(i).equals(chunks[3])){
 				continue;
 			}
 
+			testIP = chunks[0]+"."+chunks[1]+"."+chunks[2]+"."+i;
 			Socket s = null;
 			try {
-				s = new Socket(testIP, port);
+				InetSocketAddress endpoint = new InetSocketAddress(testIP, this.localNode.port);
+				s = new Socket();
+				s.connect(endpoint, 101);
 
-				// if a socket successfully opened
 				s.close();
-				System.out.println(testIP + ":" + port + " - Found first node");
-				System.out.println("testIP "+testIP+" port "+port);
-				Message message = new Message(testIP, port,messageKind.REQ_START,this.localNode);
+				System.out.println(testIP+":"+this.localNode.port + " - Found first node");
+				Message message = new Message(testIP, this.localNode.port,messageKind.REQ_START,this.localNode);
 				message.setJsonRoute(null);
 
 				//destLocation
@@ -110,7 +111,7 @@ public class P2PNetwork {
 				e.printStackTrace();
 			} catch (IOException e) {
 //				socket did not successfully open
-					System.out.println(testIP+":"+port + " - Closed");
+					System.out.println(testIP+":"+this.localNode.port + " - Closed");
 			}
 		}
 		return false;
