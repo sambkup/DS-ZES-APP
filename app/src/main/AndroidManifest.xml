@@ -50,11 +50,6 @@
             android:label="@string/title_activity_maps" >
         </activity>
         <activity
-            android:name=".SocketActivity"
-            android:label="@string/title_activity_socket"
-            android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
-        <activity
             android:name=".ClientActivity"
             android:label="@string/title_activity_client"
             android:theme="@style/AppTheme.NoActionBar" >

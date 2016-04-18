@@ -3,7 +3,7 @@ package communication;
 import java.io.Serializable;
 import org.json.JSONObject;
 
-import com.example.jayasudha.myapp.utils.Node;
+import utils.Node;
 
 public class Message implements Serializable {
 	private static final long serialVersionUID = 45;
@@ -17,6 +17,7 @@ public class Message implements Serializable {
 	public String phoneIP;
 	public int phonePort;
 	int seqNum;
+	Node closestNode = null; //ip of my neighbour which is closest to the sender
 
 	public enum messageKind{
 		GET_PARAM, 				// request parameters of the foreign node, send myself
@@ -113,6 +114,15 @@ public class Message implements Serializable {
 	public void setPhoneIP(String phoneIP) { this.phoneIP = phoneIP; }
 
 	public void setPhonePort(int phonePort) {this.phonePort = phonePort;}
+
+	public Node getClosestNode() {
+		return closestNode;
+	}
+
+	public void setClosestNode(Node closestNode) {
+		this.closestNode = closestNode;
+	}
+
 
 
 

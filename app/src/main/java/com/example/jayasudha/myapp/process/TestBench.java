@@ -4,7 +4,11 @@ package com.example.jayasudha.myapp.process;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import com.example.jayasudha.myapp.communication.*;
-import com.example.jayasudha.myapp.utils.*;
+import com.example.jayasudha.myapp.utils.NodeLocation;
+import com.example.jayasudha.myapp.utils.NodePatrolArea;
+import com.example.jayasudha.myapp.utils.P2PRegion;
+
+import utils.Node;
 
 public class TestBench {
 
@@ -40,13 +44,15 @@ public class TestBench {
 	static Node myNode;
 	static double[] location;
 	public static String dest;
+	public static String finalRoute = null;
+
 
 	public void testBench(String myLocation,String destLocation) {
 		// --------------------------------
 		// initialize - get necessary parameter inputs
 
-		int port = 4053; // Ports can be in the range 4000 - 4200
-		String IP = "192.168.0.18"; // localhost
+		int port = 4050; // Ports can be in the range 4000 - 4200
+		String IP = "172.29.93.140"; // localhost
 		//phone doesnt have range
 		double[] range = {0,0,0,0};
 //		double[] location = {40.443052,-79.944806};
@@ -55,6 +61,7 @@ public class TestBench {
 		double[] destLoc = {40.443844,-79.947789};
 
 		dest = new String();
+
 		//remove it if parameter passed from mapActivity is string
 		dest = dest+ String.valueOf(destLoc[0]) + ","+String.valueOf(destLoc[1]);
 		System.out.println("destination"+dest);
@@ -74,6 +81,7 @@ public class TestBench {
 
 
 		p2p = new P2PNetwork(myNode);
+
 
 	}
 

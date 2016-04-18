@@ -13,6 +13,8 @@ import android.widget.Button;
 import com.example.jayasudha.myapp.process.TestBench;
 import com.google.android.gms.maps.model.LatLng;
 
+import junit.framework.Test;
+
 import org.json.JSONObject;
 
 
@@ -24,7 +26,9 @@ import java.io.Serializable;
 import java.net.Socket;
 
 
+
 public class ClientActivity extends AppCompatActivity {
+    static String jsonRoute;
     private Socket client;
     private PrintWriter printWriter;
     private String pos;
@@ -32,6 +36,8 @@ public class ClientActivity extends AppCompatActivity {
     private Button button;
     private String message;
     private LatLng position;
+
+
     static ClientActivity clientActivity;
     public Send send;
     final static String PUBLIC_STATIC_STRING_IDENTIFIER = "jsonObject";
@@ -58,8 +64,6 @@ public class ClientActivity extends AppCompatActivity {
                     Double lat = Double.parseDouble(coordinates[0]);
                     Double lon = Double.parseDouble(coordinates[1]);
                     position = new LatLng(lat, lon);
-
-
                 }
 
                 System.out.println("creating send object");
@@ -120,7 +124,7 @@ public class ClientActivity extends AppCompatActivity {
             test.testBench(pos,dest);
 
             try {
-                while (jsonObject.isNull("1")) {
+                while (TestBench.finalRoute==null) {
                     try {
                         Thread.sleep(1000);
                     } catch (Exception ex) {
@@ -131,9 +135,9 @@ public class ClientActivity extends AppCompatActivity {
                 ex.toString();
             }
             System.out.println("RECEIVED JSONOBJECT");
-            System.out.println(jsonObject.toString());
+            System.out.println(TestBench.finalRoute.toString());
             Intent resultIntent = new Intent();
-            resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, jsonObject.toString());
+            resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, TestBench.finalRoute.toString());
             setResult(Activity.RESULT_OK, resultIntent);
             finish();
 

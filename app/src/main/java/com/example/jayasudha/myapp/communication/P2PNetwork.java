@@ -1,6 +1,10 @@
 package com.example.jayasudha.myapp.communication;
 
 
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.text.format.Formatter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -14,7 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import com.google.gson.Gson;
+
 
 
 import com.example.jayasudha.myapp.ClientActivity;
@@ -24,10 +28,13 @@ import communication.Message;
 
 
 import communication.Message.messageKind;
+
+import com.example.jayasudha.myapp.MapsActivity;
 import com.example.jayasudha.myapp.process.TestBench;
-import com.example.jayasudha.myapp.utils.Node;
+import utils.Node;
 
 import org.json.JSONObject;
+import com.google.gson.Gson;
 
 public class P2PNetwork {
 
@@ -69,22 +76,22 @@ public class P2PNetwork {
 	}
 
 	public boolean findFirstNodeByPort(){
-		String testIP = this.localNode.ip;
+		String testIP = "192.168.0.15"; //set to ip of nodes
 		int localport = this.localNode.port;
 		int startport = 4000;
 		int endport = 4200;
-		
+
 		// TODO: randomize the start point, so the earlier ports aren't overwhelmed
 		for (int port = startport; port <= endport; port++){
 			// Ignore myself
 			if (port == localport){
 				continue;
 			}
-			
+
 			Socket s = null;
 			try {
 				s = new Socket(testIP, port);
-				
+
 				// if a socket successfully opened
 				s.close();
 				System.out.println(testIP + ":" + port + " - Found first node");
@@ -97,36 +104,36 @@ public class P2PNetwork {
 
 				message.setPhoneIP(localNode.ip);
 				message.setPhonePort(localNode.port);
-				send(message);	
+				send(message);
 				return true;
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 //				socket did not successfully open
-//				System.out.println(testIP+":"+port + " - Closed");
+					System.out.println(testIP+":"+port + " - Closed");
 			}
 		}
 		return false;
 	}
 
 	public void send(Message message) {
+
 		String ip = message.destIP;
 		int port = message.destPort;
-		System.out.println("Sending message to "+ip+":"+port);
-		System.out.println(message.getNode().myLocation);
-		System.out.println(message.getNode().myLocation.toString());
-
-		System.out.println(message.getNode().ip);
-		System.out.println(message.getNode().port);
-		System.out.println(message.getNode().toString());
+		System.out.println("Sending message to "+ip+":"+port+" from "+localNode.ip+":"+localNode.port);
+		System.out.println(message.toString());
 
 		Socket s = null;
+		System.out.println("1");
 		Connection connection_to_use = null;
+		System.out.println("2");
 		try {
 			s = new Socket(ip, port);
+			System.out.println("3");
 			s.setKeepAlive(true);
-
+			System.out.println("4");
 			connection_to_use = new Connection(s, this);
+			System.out.println("5");
 			System.out.println("Connection created");
 			
 		} catch (UnknownHostException e) {
@@ -142,12 +149,12 @@ public class P2PNetwork {
 		}
 
 		System.out.println("Sending message");
+
 		Gson gson = new Gson();
 		String json = gson.toJson(message);
-
-
-	//	connection_to_use.write_object(message);
-		connection_to_use.write_object(json);
+		System.out.println(json);
+		connection_to_use.write(json);
+		//connection_to_use.write_object(message);
 		connection_to_use.close();
 
 	}
@@ -218,7 +225,7 @@ public class P2PNetwork {
 
 		case REQ_START:
 			System.out.println("Received \"REQ_START\"");
-			/* check if myloc is within my patrol area */
+
 			if(this.localNode.inMyArea(newNode))	{
 				this.send((new Message(newNode.ip,newNode.port,messageKind.MY_AREA, this.localNode)));
 			}
@@ -226,52 +233,29 @@ public class P2PNetwork {
 				this.send(new Message(newNode.ip,newNode.port,messageKind.NOT_MY_AREA, this.localNode));
 			}
 			return;
+		//if phone received MSG_JSON, display the json received
 		case MSG_JSON:
 			System.out.println("Received \"MSG_JSON\"");
-			//if final JSON, send it to the phone. if I am the phone, myip = phoneip. then pass it back to clientActivtiy
-			if((localNode.ip.equalsIgnoreCase(message.phoneIP))&(localNode.port==message.phonePort)) {
-				ClientActivity.getInstance().setJSONObjectToSendInstance(message.getJsonRoute());
-				return;
-			}
 
-
-
-			//if start node = myself,I am the device and  it is the final JSON, send it to the phone
-			if(message.getStartNodeIP().equalsIgnoreCase(localNode.ip)){
-				message.setDestIP(message.phoneIP);  //setting as phone
-				message.setDestPort(message.phonePort);
-
-			}
-			else{
-				message.setDestIP(this.foundNodes.get(1).ip);  //setting as first neighbour, should change to nearest node
-				message.setDestPort(this.foundNodes.get(1).port);
-
-			}
-
-
-
-			//if destLoc is in my patrol area, add my location to json and send to start node
-			JSONObject newJSON = message.getJsonRoute();
-				//Add my location to the json Object if I'm safe, send it to my nearest neighbour
-			if(this.localNode.getState().equalsIgnoreCase("SAFE")){
-				try {
-					newJSON = this.localNode.enterJSON(message.getJsonRoute());
-				}catch (Exception ex){
-					System.out.println("error in entering my location to JSON");
-				}
-			}
-			//send JSON and message to next node
-			message.setJsonRoute(newJSON);
-
-			this.send(message);
-			return;
+			/* if my_area, set the destloc, startnodeip, send out the request
+			 * else, send req_start to the the closestnode*/
 		case MY_AREA:
 			System.out.println("Received \"MY_AREA\"");
-			//establish a permanent connection with it and wait for JSON
-			this.send(new Message(newNode.ip,newNode.port,messageKind.MSG_JSON, this.localNode));
-			return;
-
-
+			Message jsonRequest = new Message(newNode.ip,newNode.port,messageKind.MSG_JSON, this.localNode);
+			jsonRequest.setDestLoc(TestBench.dest);
+			jsonRequest.setStartNodeIP(newNode.ip);
+			jsonRequest.setJsonRoute(null);
+			jsonRequest.setKind(messageKind.MSG_JSON);
+			send(jsonRequest);
+			break;
+		case NOT_MY_AREA:
+			System.out.println("Received \"NOT_MY_AREA\"");
+			Node newDest = message.getClosestNode();
+			message.setKind(messageKind.REQ_START);
+			message.setDestIP(newDest.ip);
+			message.setDestPort(newDest.port);
+			send(message);
+			break;
 		default:
 			break;
 		}
@@ -291,6 +275,8 @@ public class P2PNetwork {
 	}
 
 	private void listen_server() {
+
+
 		System.out.println("Starting MessagePasser server with address = " + this.localNode.address);
 		int counter = 0;
 		ServerSocket listenSocket = null;
@@ -298,7 +284,8 @@ public class P2PNetwork {
 			listenSocket = new ServerSocket(this.localNode.port);
 
 			while (true) {
-				Socket clientSocket = listenSocket.accept();				
+				Socket clientSocket = listenSocket.accept();
+				System.out.println("server thread");
 				new Connection(clientSocket, this);
 				System.out.println("Server received a new connection: # " + counter);
 				counter++;
@@ -348,31 +335,31 @@ class Connection extends Thread {
 	public Connection(Socket aClientSocket, P2PNetwork p2p) {
 		this.p2p = p2p;
 		try {
+
 			clientSocket = aClientSocket;
 			in = new DataInputStream(clientSocket.getInputStream());
 			out = new DataOutputStream(clientSocket.getOutputStream());
-			outObj = new ObjectOutputStream(clientSocket.getOutputStream());
-			inObj = new ObjectInputStream(clientSocket.getInputStream());
-
 			this.start();
+			System.out.println("Connection created with "+aClientSocket.getInetAddress());
 		} catch (IOException e) {
 			System.out.println("Connection:" + e.getMessage());
 		}
 	}
 
 	public void run() {
+		Gson gson = new Gson();
 		try {
 			while (true) {
-				Message message = (Message) inObj.readObject();
+				String json = in.readUTF();
+				Message message = gson.fromJson(json, Message.class);
+				System.out.println("Message received "+message.toString());
 				p2p.receive_message(message, this);
 			}
 
 		} catch (EOFException e) {
 			System.out.println("Server EOF:" + e.getMessage());
 		} catch (IOException e) {
-		} catch (ClassNotFoundException e) {
-			System.out.println("Failed to convert received object!");
-		} finally {
+		}finally {
 			try {
 				if (clientSocket != null) {
 					clientSocket.close();
@@ -390,6 +377,14 @@ class Connection extends Thread {
 				this.outObj.writeObject(object);
 			}
 		} catch (IOException e) {
+			System.out.println("error sending message - client side:" + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	public void write(String json){
+		try{
+			this.out.writeUTF(json);
+		}catch (IOException e){
 			System.out.println("error sending message - client side:" + e.getMessage());
 			e.printStackTrace();
 		}
