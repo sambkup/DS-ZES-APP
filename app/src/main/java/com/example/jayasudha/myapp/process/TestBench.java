@@ -74,7 +74,6 @@ public class TestBench {
 		double[] range = {0, 0, 0, 0};
 	//	double[] location = {2, 2}; // node 5
 
-
 		// --------------------------------
 		// construct the required objects
 
