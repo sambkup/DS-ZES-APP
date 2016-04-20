@@ -76,7 +76,6 @@ public class TestBench {
 
 		// --------------------------------
 		// construct the required objects
-
 		region = new P2PRegion(range);
 		initial_patrol_area = new NodePatrolArea(range);
 		node_loc = new NodeLocation(location);
