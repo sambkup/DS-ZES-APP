@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
@@ -37,15 +36,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,LocationListener {
 
@@ -56,13 +49,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     static final int STATIC_INTEGER_VALUE = 1;
     static final String PUBLIC_STATIC_STRING_IDENTIFIER = "jsonObject";
     static String destination;
-
-
-    private GoogleApiClient mGoogleApiClient;
-    private Location mCurrentLocation;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -291,26 +277,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 latLngs.add(coordinate);
                 System.out.println("latlngs "+coordinate.toString());
-
-
-
         }
         LatLngBounds.Builder b = new LatLngBounds.Builder();
-
-
-
         for(LatLng eachPoint : latLngs){
             MarkerOptions options = new MarkerOptions().position( eachPoint );
             b.include(eachPoint);
             options.icon(BitmapDescriptorFactory.defaultMarker());
             mMap.addMarker(options);
-
-
         }
         LatLngBounds bounds = b.build();
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,100,100,5);
         mMap.animateCamera(cu);
-
         Polyline line = mMap.addPolyline(new PolylineOptions().addAll(latLngs).width(7).color(Color.RED));
         line.setPoints(latLngs);
 

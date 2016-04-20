@@ -37,7 +37,6 @@ public class ClientActivity extends AppCompatActivity {
     private String message;
     private LatLng position;
 
-
     static ClientActivity clientActivity;
     public Send send;
     final static String PUBLIC_STATIC_STRING_IDENTIFIER = "jsonObject";
@@ -120,101 +119,32 @@ public class ClientActivity extends AppCompatActivity {
             //wait till a valid JSON is obtained from startnode
             //switch back to maps and display it
             System.out.println("Inside client activity, my position is " + pos + "destination location is  " + dest);
-            TestBench test = new TestBench();
-            test.testBench(pos,dest);
-
             try {
-                while (TestBench.finalRoute==null) {
+                /*set temp pos and dest */
+                pos = "0,8";
+                dest = "1,8";
+                TestBench test = new TestBench(pos, dest);
+            }catch(IOException io){
+                System.out.println(io.getMessage());
+            }
+                while (true) {
                     try {
-                        Thread.sleep(1000);
+                        if(TestBench.finalRoute.isNull("1")) {
+                            continue;
+                        }
+                        else {
+                            break;
+                        }
                     } catch (Exception ex) {
                         System.out.println(ex.toString());
                     }
                 }
-            }catch(Exception ex){
-                ex.toString();
-            }
-            System.out.println("RECEIVED JSONOBJECT");
-            System.out.println(TestBench.finalRoute.toString());
+            System.out.println("RECEIVED JSON OBJECT");
+            System.out.println(TestBench.finalRoute);
             Intent resultIntent = new Intent();
             resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, TestBench.finalRoute.toString());
             setResult(Activity.RESULT_OK, resultIntent);
             finish();
-
-/*
-            try {
-                client = new Socket("192.168.0.18", 1029);
-            }catch (Exception ex){
-                ex.printStackTrace();
-            }
-
-
-                try {
-
-                    InputStream is = null;
-                    ObjectInputStream ois = null;
-
-                    while (true) {
-                        printWriter = new PrintWriter(client.getOutputStream());
-                        printWriter.write(message);
-                        System.out.println("sending message");
-                        printWriter.flush();
-
-                        Boolean receiveFlag = false;
-                        try {
-                            is = client.getInputStream();
-
-                        } catch (Exception ex) {
-                            System.err.println(ex.toString());
-                            ex.printStackTrace();
-                        }
-                        try {
-                            ois = new ObjectInputStream(is);
-                        } catch (Exception ex) {
-                            System.err.println(ex.toString());
-                            ex.printStackTrace();
-                        }
-                        try {
-
-                            String s = (String) ois.readObject();
-                            System.out.print(s);
-                            jsonObject = new JSONObject(s);
-                             if (jsonObject == null) {
-                                System.err.println("null json");
-
-                                break;
-                            } else {
-                                System.out.println(jsonObject.toString());
-                                Intent resultIntent = new Intent();
-                                resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, jsonObject.toString());
-                                setResult(Activity.RESULT_OK, resultIntent);
-                                printWriter.close();
-                                ois.close();
-                                is.close();
-                                client.close();
-                                finish();
-
-                                break;
-
-                            }
-
-                        } catch (Exception ex) {
-                            System.out.println("error in reading json");
-                         //   System.err.println(ex.toString());
-                          //  ex.printStackTrace();
-                            break;
-                        }
-                    }
-                    printWriter.close();
-                    ois.close();
-                    is.close();
-                    client.close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                return null;
-
-            }*/
             return null;
 
         }

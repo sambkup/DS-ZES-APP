@@ -34,8 +34,11 @@ import com.example.jayasudha.myapp.MapsActivity;
 import com.example.jayasudha.myapp.process.TestBench;
 import utils.Node;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import com.google.gson.Gson;
+
+import junit.framework.Test;
 
 public class P2PNetwork {
 
@@ -43,7 +46,7 @@ public class P2PNetwork {
 
 	List<Message> delay_receive_queue;
 	List<Message> receive_queue;
-	
+
 	HashMap<String, Node> foundNodes;
 	List<Node> neighborNodes;
 
@@ -58,7 +61,7 @@ public class P2PNetwork {
 			// TODO: throw an exception - maybe IncorrectPortIP
 			return;
 		}
-		
+
 		// run server
 		Thread server = new Thread() {
 			public void run() {
@@ -66,42 +69,47 @@ public class P2PNetwork {
 			}
 		};
 		server.start();
-		
+
 		/* bootstrap */
 		System.out.println("Starting bootstrapping...");
 		if (!findFirstNodeByPort()){
 			//user is dead
 			System.out.println("I am the first node");
 		}
-		
+
 	}
 
 	public boolean findFirstNodeByPort(){
 		String myIP = this.localNode.ip;
+		myIP = "172.29.92.68"; //hardcoding to the sensor nodes' ip
 		String delims = "[.]";
 		String[] chunks = myIP.split(delims);
 
-		int maxIP = 256;
+		int maxIP = 150;
 		String testIP;
-		for (int i = 1; i<maxIP; i++){
+		for (int i = 0; i<maxIP; i++){
 			if (Integer.toString(i).equals(chunks[3])){
 				continue;
 			}
 
 			testIP = chunks[0]+"."+chunks[1]+"."+chunks[2]+"."+i;
 			Socket s = null;
+			int sensorPort = 4001;
 			try {
-				InetSocketAddress endpoint = new InetSocketAddress(testIP, this.localNode.port);
+
+				InetSocketAddress endpoint = new InetSocketAddress(testIP, sensorPort);
 				s = new Socket();
 				s.connect(endpoint, 101);
 
 				s.close();
-				System.out.println(testIP+":"+this.localNode.port + " - Found first node");
-				Message message = new Message(testIP, this.localNode.port,messageKind.REQ_START,this.localNode);
-				message.setJsonRoute(null);
+				System.out.println(testIP+":"+sensorPort + " - Found first node");
+				Message message = new Message(testIP, sensorPort,messageKind.REQ_START,this.localNode);
+				message.setJsonRoute(new JSONObject());
 
 				//destLocation
-				message.setDestLoc(TestBench.dest);
+				message.setDestLoc("40.44316,-79.9422"); // node 16 coordinates
+			//	message.setDestLoc(TestBench.destinationUser);
+
 
 				message.setPhoneIP(localNode.ip);
 				message.setPhonePort(localNode.port);
@@ -111,7 +119,7 @@ public class P2PNetwork {
 				e.printStackTrace();
 			} catch (IOException e) {
 //				socket did not successfully open
-					System.out.println(testIP+":"+this.localNode.port + " - Closed");
+				System.out.println(testIP+":"+sensorPort + " - Closed");
 			}
 		}
 		return false;
@@ -125,18 +133,18 @@ public class P2PNetwork {
 		System.out.println(message.toString());
 
 		Socket s = null;
-		System.out.println("1");
-		Connection connection_to_use = null;
-		System.out.println("2");
+
+		Connection2 connection_to_use = null;
+
 		try {
 			s = new Socket(ip, port);
-			System.out.println("3");
+
 			s.setKeepAlive(true);
-			System.out.println("4");
-			connection_to_use = new Connection(s, this);
-			System.out.println("5");
+
+			connection_to_use = new Connection2(s, this);
+
 			System.out.println("Connection created");
-			
+
 		} catch (UnknownHostException e) {
 			System.out.println("Client Socket error:" + e.getMessage());
 		} catch (EOFException e) {
@@ -176,89 +184,94 @@ public class P2PNetwork {
 		return retreive;
 	}
 
-	public synchronized void receive_message(Message message, Connection c) {
-		
+	public synchronized void receive_message(Message message, Connection2 c) {
+
 		Node newNode = message.getNode();
-		
+
 		switch (message.kind) {
-		case GET_PARAM:
-			System.out.println("Recevied \"GET_PARAM\"");
-			this.send(new Message(newNode.ip,newNode.port,messageKind.GET_PARAM_RESPONSE, this.localNode));
-			return;
-			
-		case GET_PARAM_RESPONSE:
-			System.out.println("Recevied \"GET_PARAM_RESPONSE\"");
-			this.foundNodes.put(newNode.getName(), newNode);
-			// request to update patrol region
-			this.send(new Message(newNode.ip,newNode.port,messageKind.REQ_UPDATED_PATROL, this.localNode));
-			return;
-			
-		case REQ_UPDATED_PATROL:
-			System.out.println("Recevied \"REQ_UPDATED_PATROL\"");
-			if (!localNode.inMyArea(newNode)){
-				// node not in my region
-				// TODO: find which node the newNode should ask next
-				this.send(new Message(newNode.ip,newNode.port,messageKind.UPDATE_PATROL_NACK, this.localNode));
-			}
-			else{
-				// send newNode's location
+			case GET_PARAM:
+				System.out.println("Recevied \"GET_PARAM\"");
+				this.send(new Message(newNode.ip,newNode.port,messageKind.GET_PARAM_RESPONSE, this.localNode));
+				return;
+
+			case GET_PARAM_RESPONSE:
+				System.out.println("Recevied \"GET_PARAM_RESPONSE\"");
+				this.foundNodes.put(newNode.getName(), newNode);
+				// request to update patrol region
+				this.send(new Message(newNode.ip,newNode.port,messageKind.REQ_UPDATED_PATROL, this.localNode));
+				return;
+
+			case REQ_UPDATED_PATROL:
+				System.out.println("Recevied \"REQ_UPDATED_PATROL\"");
+				if (!localNode.inMyArea(newNode)){
+					// node not in my region
+					// TODO: find which node the newNode should ask next
+					this.send(new Message(newNode.ip,newNode.port,messageKind.UPDATE_PATROL_NACK, this.localNode));
+				}
+				else{
+					// send newNode's location
 
 				/* phone not splitting*/
-				//newNode = localNode.splitPatrolArea(newNode);
-				this.send(new Message(newNode.ip,newNode.port,messageKind.UPDATE_PATROL_ACK, newNode));
+					//newNode = localNode.splitPatrolArea(newNode);
+					this.send(new Message(newNode.ip,newNode.port,messageKind.UPDATE_PATROL_ACK, newNode));
 
-				// store new Node:
+					// store new Node:
+					this.foundNodes.put(newNode.getName(), newNode);
+
+					// send my updated location
+					this.send(new Message(newNode.ip,newNode.port,messageKind.SEND_UPDATED_PARAM, this.localNode));
+				}
+				return;
+
+			case SEND_UPDATED_PARAM:
 				this.foundNodes.put(newNode.getName(), newNode);
-				
-				// send my updated location
-				this.send(new Message(newNode.ip,newNode.port,messageKind.SEND_UPDATED_PARAM, this.localNode));
-			}
-			return;
+				return;
 
-		case SEND_UPDATED_PARAM:
-			this.foundNodes.put(newNode.getName(), newNode);
-			return;
-			
-		case SEND_PARAM:
-			System.out.println("Recevied \"SEND_PARAM\"");
-			this.foundNodes.put(newNode.getName(), newNode);
-			return;
+			case SEND_PARAM:
+				System.out.println("Recevied \"SEND_PARAM\"");
+				this.foundNodes.put(newNode.getName(), newNode);
+				return;
 
-		case REQ_START:
-			System.out.println("Received \"REQ_START\"");
+			case REQ_START:
+				System.out.println("Received \"REQ_START\"");
 
-			if(this.localNode.inMyArea(newNode))	{
-				this.send((new Message(newNode.ip,newNode.port,messageKind.MY_AREA, this.localNode)));
-			}
-			else{
-				this.send(new Message(newNode.ip,newNode.port,messageKind.NOT_MY_AREA, this.localNode));
-			}
-			return;
-		//if phone received MSG_JSON, display the json received
-		case MSG_JSON:
-			System.out.println("Received \"MSG_JSON\"");
+				if(this.localNode.inMyArea(newNode))	{
+					this.send((new Message(newNode.ip,newNode.port,messageKind.MY_AREA, this.localNode)));
+				}
+				else{
+					this.send(new Message(newNode.ip,newNode.port,messageKind.NOT_MY_AREA, this.localNode));
+				}
+				break;
+			//if phone received MSG_JSON, display the json received
+			case MSG_JSON:
+				System.out.println("Received \"MSG_JSON\"");
+				System.out.println("Route is "+message.jsonRoute.toString());
+				//TestBench.finalRoute = message.getJsonRoute();
 
 			/* if my_area, set the destloc, startnodeip, send out the request
 			 * else, send req_start to the the closestnode*/
-		case MY_AREA:
-			System.out.println("Received \"MY_AREA\"");
-			Message jsonRequest = new Message(newNode.ip,newNode.port,messageKind.MSG_JSON, this.localNode);
-			jsonRequest.setDestLoc(TestBench.dest);
-			jsonRequest.setStartNodeIP(newNode.ip);
-			jsonRequest.setJsonRoute(null);
-			jsonRequest.setKind(messageKind.MSG_JSON);
-			send(jsonRequest);
-			break;
-		case NOT_MY_AREA:
-			System.out.println("Received \"NOT_MY_AREA\"");
-			Node newDest = message.getClosestNode();
-			message.setKind(messageKind.REQ_START);
-			message.setDestIP(newDest.ip);
-			message.setDestPort(newDest.port);
-			send(message);
-			break;
-		default:
-			break;
+				return;
+			case MY_AREA:
+				System.out.println("Received \"MY_AREA\"");
+				Message jsonRequest = new Message(newNode.ip,newNode.port,messageKind.MSG_JSON, this.localNode);
+				jsonRequest.setPhoneIP(this.localNode.ip);
+				jsonRequest.setPhonePort(this.localNode.port);
+				jsonRequest.setDestLoc(TestBench.destinationUser);
+				jsonRequest.setStartNodeIP(newNode.ip);
+				jsonRequest.setJsonRoute(new JSONObject());
+				jsonRequest.setKind(messageKind.MSG_JSON);
+				send(jsonRequest);
+				break;
+			case NOT_MY_AREA:
+				System.out.println("Received \"NOT_MY_AREA\"");
+				Node newDest = message.getClosestNode();
+				message.setKind(messageKind.REQ_START);
+				message.setDestIP(newDest.ip);
+				message.setDestPort(newDest.port);
+				send(message);
+				break;
+			default:
+				break;
 		}
 
 		// the receive buffer from the Homeworks
@@ -287,7 +300,7 @@ public class P2PNetwork {
 			while (true) {
 				Socket clientSocket = listenSocket.accept();
 				System.out.println("server thread");
-				new Connection(clientSocket, this);
+				new Connection2(clientSocket, this);
 				System.out.println("Server received a new connection: # " + counter);
 				counter++;
 			}
@@ -297,7 +310,7 @@ public class P2PNetwork {
 			try {
 				if (listenSocket != null)
 					System.out.println("Closing socket");
-					listenSocket.close();
+				listenSocket.close();
 			} catch (IOException e) {
 				System.out.println("Failed to close server.");
 			}
@@ -308,9 +321,9 @@ public class P2PNetwork {
 	public void printFoundNodes(){
 		System.out.println("Printing Found Nodes----------");
 		System.out.println(this.localNode.getName()+" : "+this.localNode.toString());
-		
+
 		for (Entry<String, Node> entry : this.foundNodes.entrySet()) {
-		    System.out.println(entry.getKey()+" : "+entry.getValue());
+			System.out.println(entry.getKey()+" : "+entry.getValue());
 		}
 
 //		int numFoundNodes = this.foundNodes.size();
@@ -320,10 +333,10 @@ public class P2PNetwork {
 //		}
 		System.out.println("------------------------------");
 	}
-	
+
 }
 
-class Connection extends Thread {
+class Connection2 extends Thread {
 
 	DataInputStream in;
 	DataOutputStream out;
@@ -333,7 +346,7 @@ class Connection extends Thread {
 	Socket clientSocket;
 	P2PNetwork p2p;
 
-	public Connection(Socket aClientSocket, P2PNetwork p2p) {
+	public Connection2(Socket aClientSocket, P2PNetwork p2p) {
 		this.p2p = p2p;
 		try {
 
@@ -341,7 +354,7 @@ class Connection extends Thread {
 			in = new DataInputStream(clientSocket.getInputStream());
 			out = new DataOutputStream(clientSocket.getOutputStream());
 			this.start();
-			System.out.println("Connection created with "+aClientSocket.getInetAddress());
+			System.out.println("Connection created with " + aClientSocket.getInetAddress());
 		} catch (IOException e) {
 			System.out.println("Connection:" + e.getMessage());
 		}
@@ -352,15 +365,39 @@ class Connection extends Thread {
 		try {
 			while (true) {
 				String json = in.readUTF();
+				System.out.println("Received json is "+json.toString());
+				JSONObject testJSON = null;
+				JSONObject mapJSON = null;
+				try {
+					testJSON = new JSONObject(json);
+					//System.out.println(testJSON.get("jsonRoute"));
+					mapJSON = (JSONObject)testJSON.get("jsonRoute");
+					//System.out.println(mapJSON.get("map"));
+					String testKind = new String();
+					testKind = testJSON.getString("kind");
+					System.out.println("Message kind is "+testKind);
+					if(testKind.equals("MSG_JSON")) {
+						System.out.println("Message is MSG_JSON Kind");
+						TestBench.finalRoute = (JSONObject) mapJSON.get("map");
+						System.out.println("final Route is " + TestBench.finalRoute);
+					}
+
+
+
+				}catch (JSONException je){
+					System.out.println(je.getMessage());
+				}
+
+
 				Message message = gson.fromJson(json, Message.class);
-				System.out.println("Message received "+message.toString());
+				System.out.println("Message received " + message.toString());
 				p2p.receive_message(message, this);
 			}
 
 		} catch (EOFException e) {
 			System.out.println("Server EOF:" + e.getMessage());
 		} catch (IOException e) {
-		}finally {
+		} finally {
 			try {
 				if (clientSocket != null) {
 					clientSocket.close();
@@ -382,10 +419,11 @@ class Connection extends Thread {
 			e.printStackTrace();
 		}
 	}
-	public void write(String json){
-		try{
+
+	public void write(String json) {
+		try {
 			this.out.writeUTF(json);
-		}catch (IOException e){
+		} catch (IOException e) {
 			System.out.println("error sending message - client side:" + e.getMessage());
 			e.printStackTrace();
 		}
@@ -399,5 +437,4 @@ class Connection extends Thread {
 			e.printStackTrace();
 		}
 	}
-
 }
