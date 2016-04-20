@@ -18,8 +18,6 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Toast;
-
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -62,7 +60,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         if (mMap != null) {
-            Toast.makeText(MapsActivity.this,"calling setupmap ", Toast.LENGTH_LONG).show();
+   //         Toast.makeText(MapsActivity.this,"calling setupmap ", Toast.LENGTH_LONG).show();
             setUpMap();
             mMap.setMyLocationEnabled(true);
             mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
@@ -98,13 +96,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapClick(LatLng point) {
                 //save current location
-                LatLng latLng = point;
+
                 String message = String.valueOf(point.latitude) + "," + String.valueOf(point.longitude);
-                Toast.makeText(MapsActivity.this, message, Toast.LENGTH_LONG).show();
+     //           Toast.makeText(MapsActivity.this, message, Toast.LENGTH_LONG).show();
                 //set destination
                 destination = message;
 
-                 //remove previously placed Marker
+                //remove previously placed Marker
                 if (marker != null) {
                     marker.remove();
                 }
@@ -127,10 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double longitude = location.getLongitude();
 
         // Creating a LatLng object for the current location
-
-
         latLng = new LatLng(latitude, longitude);
-
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
         // Zoom in, animating the camera.
@@ -171,12 +166,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Add a marker in Sydney and move the camera
 
-        Toast.makeText(this, "on map ready", Toast.LENGTH_SHORT).show();
+   //     Toast.makeText(this, "on map ready", Toast.LENGTH_SHORT).show();
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
         mMap.setMyLocationEnabled(true);
-
-
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
 
@@ -189,13 +182,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Location myLocation = locationManager.getLastKnownLocation(provider);
         int MY_PERMISSION_ACCESS_COURSE_LOCATION = 1000;
-
-        //check validity
-        if ( ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
-
-            ActivityCompat.requestPermissions( this, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },
-                    MY_PERMISSION_ACCESS_COURSE_LOCATION );
-        }
         if ( Build.VERSION.SDK_INT >= 23 &&
                 ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -205,32 +191,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(myLocation!=null){
             onLocationChanged(myLocation);
         }
-        locationManager.requestLocationUpdates(provider, 20000, 0, this);
-        double latitude = myLocation.getLatitude();
-
-        double longitude = myLocation.getLongitude();
-
-        Context context = getApplicationContext();
-        CharSequence text = new StringBuilder().append(String.valueOf(latitude)).append(" ").append(String.valueOf(longitude)).toString();
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
-
-
 
     }
 
     private void enableMyLocation() {
-        Toast.makeText(this, "enableMyLocation", Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(this, "enableMyLocation", Toast.LENGTH_SHORT).show();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission to access the location is missing.
 
             int LOCATION_PERMISSION_REQUEST_CODE = 1;
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-
-
 
         } else if (mMap != null) {
             // Access to the location has been granted to the app.
@@ -241,17 +212,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public boolean onMyLocationButtonClick() {
-        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;
     }
     public void getRoute(View view)throws IOException{
-        Intent startClientActivity = new Intent(this, ClientActivity.class);
-        String currentPos = Double.toString(latLng.latitude)+","+Double.toString(latLng.longitude);
-        startClientActivity.putExtra("currentPosition",currentPos);
-        startClientActivity.putExtra("destinationLocation",destination);
-        startActivityForResult(startClientActivity,STATIC_INTEGER_VALUE);
+        if(destination==null){
+            Toast.makeText(this, "place marker on your destination", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Intent startClientActivity = new Intent(this, ClientActivity.class);
+            String currentPos = Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude);
+            startClientActivity.putExtra("currentPosition", currentPos);
+            startClientActivity.putExtra("destinationLocation", destination);
+            startActivityForResult(startClientActivity, STATIC_INTEGER_VALUE);
+        }
     }
     public void displayRouteFromJSON(String jsonObject)throws IOException,JSONException{
         System.out.println("inside displayRoute");

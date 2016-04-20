@@ -19,27 +19,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-
-
-
-import com.example.jayasudha.myapp.ClientActivity;
-
 import communication.Message;
-
-
-
 import communication.Message.messageKind;
-
-import com.example.jayasudha.myapp.MapsActivity;
 import com.example.jayasudha.myapp.process.TestBench;
 import utils.Node;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.google.gson.Gson;
-
-import junit.framework.Test;
-
 public class P2PNetwork {
 
 	public Node localNode;
@@ -81,7 +68,7 @@ public class P2PNetwork {
 
 	public boolean findFirstNodeByPort(){
 		String myIP = this.localNode.ip;
-		myIP = "172.29.92.68"; //hardcoding to the sensor nodes' ip
+		myIP = "172.29.92.62"; //hardcoding to the sensor nodes' ip
 		String delims = "[.]";
 		String[] chunks = myIP.split(delims);
 
