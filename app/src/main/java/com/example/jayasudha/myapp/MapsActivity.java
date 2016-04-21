@@ -42,6 +42,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private LatLng latLng;
+    private  Location loc;
     private Marker marker;
     Geocoder geocoder;
     static final int STATIC_INTEGER_VALUE = 1;
@@ -98,7 +99,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //save current location
 
                 String message = String.valueOf(point.latitude) + "," + String.valueOf(point.longitude);
-     //           Toast.makeText(MapsActivity.this, message, Toast.LENGTH_LONG).show();
+                //           Toast.makeText(MapsActivity.this, message, Toast.LENGTH_LONG).show();
                 //set destination
                 destination = message;
 
@@ -218,12 +219,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return false;
     }
     public void getRoute(View view)throws IOException{
+        String currentPos = new String();
         if(destination==null){
             Toast.makeText(this, "place marker on your destination", Toast.LENGTH_SHORT).show();
         }
         else {
             Intent startClientActivity = new Intent(this, ClientActivity.class);
-            String currentPos = Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude);
+            if(latLng == null){
+                LocationManager locM = (LocationManager) getSystemService(LOCATION_SERVICE);
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // Permission to access the location is missing.
+                    int LOCATION_PERMISSION_REQUEST_CODE = 1;
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+
+                }
+
+                locM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                loc = locM.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (loc != null) {
+                    System.out.println("Current position = "+loc.toString());
+                    currentPos = Double.toString(loc.getLatitude()) + "," + Double.toString(loc.getLongitude());
+                }else{
+                    System.out.println("no current position");
+                }
+            }
+            else {
+                currentPos = Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude);
+            }
             startClientActivity.putExtra("currentPosition", currentPos);
             startClientActivity.putExtra("destinationLocation", destination);
             startActivityForResult(startClientActivity, STATIC_INTEGER_VALUE);
