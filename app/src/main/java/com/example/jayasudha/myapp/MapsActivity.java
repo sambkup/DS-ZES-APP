@@ -244,13 +244,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         while( keys.hasNext() ) {
             String key = (String)keys.next();
             System.out.println("key"+key);
-
                 String coordinates = pointsJSON.get(key).toString();
                 String latlng[] = coordinates.split(",");
                 Double lat = Double.parseDouble(latlng[0]);
                 Double lng = Double.parseDouble(latlng[1]);
                 LatLng coordinate = new LatLng(lat,lng);
-
                 latLngs.add(coordinate);
                 System.out.println("latlngs "+coordinate.toString());
         }
@@ -266,10 +264,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(cu);
         Polyline line = mMap.addPolyline(new PolylineOptions().addAll(latLngs).width(7).color(Color.RED));
         line.setPoints(latLngs);
-
-
-
-
     }
     @Override
     public void onActivityResult (int requestCode, int resultCode, Intent data){
