@@ -53,7 +53,7 @@ public class TestBench {
 		// pos is the position of user and dest is his destination. Parse pos into double.
 		//TODO : CHANGE DEST TO DOUBLE[] TOO
 
-		pos = "40.443160,-79.942200"; //delete this
+		pos = "40.4431325,-79.9423925"; //delete this
 		/* set phone's location */
 		String latLng[] = pos.split(",");
 		double location[] = new double[2];
@@ -62,6 +62,7 @@ public class TestBench {
 
 		/*set destination */
 		destinationUser = dest;
+		destinationUser = "40.4429675,-79.9422275";
 
 		// --------------------------------
 		// initialize - get necessary parameter inputs
@@ -69,7 +70,7 @@ public class TestBench {
 
 
 		String IP = findMyIPaddr();
-		IP = "172.29.93.140"; //hardcoding it to phone's ip
+		IP = "192.168.2.127"; //hardcoding it to phone's ip
 
 		double[] range = {0, 0, 0, 0};
 	//	double[] location = {2, 2}; // node 5
