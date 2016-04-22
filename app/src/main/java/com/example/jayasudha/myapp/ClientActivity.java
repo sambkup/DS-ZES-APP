@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.Button;
 
 
-import com.example.jayasudha.myapp.process.TestBench;
+import process.TestBench;
 import com.google.android.gms.maps.model.LatLng;
 
 import junit.framework.Test;
@@ -123,7 +123,8 @@ public class ClientActivity extends AppCompatActivity {
                 /*set temp pos and dest */
                 pos = "0,8";
                 dest = "1,8";
-                TestBench test = new TestBench(pos, dest);
+                TestBench test = new TestBench(pos,dest);
+
             }catch(IOException io){
                 System.out.println(io.getMessage());
             }
