@@ -130,7 +130,7 @@ public class ClientActivity extends AppCompatActivity {
             }
                 while (true) {
                     try {
-                        if(TestBench.finalRoute.isNull("1")) {
+                        if(TestBench.finalRoute.isNull("0")) {
                             continue;
                         }
                         else {
