@@ -3,7 +3,11 @@ package process;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.List;
+
 import communication.*;
 import utils.NodeLocation;
 import utils.NodePatrolArea;
@@ -69,8 +73,9 @@ public class TestBench {
 		int port = 4050;
 
 
-		String IP = findMyIPaddr();
-		IP = "192.168.2.13"; //hardcoding it to phone's ip
+		String IP = getIPAddress();
+		System.out.println(IP);
+	//	IP = "192.168.2.13"; //hardcoding it to phone's ip
 
 		double[] range = {0, 0, 0, 0};
 		//	double[] location = {2, 2}; // node 5
@@ -92,19 +97,28 @@ public class TestBench {
 	}
 
 
-	private static String findMyIPaddr() {
-		// TODO: make this failure tolerant
-		InetAddress x = null;
+
+	/*to get device's IP address*/
+	public static String getIPAddress() {
 		try {
-			x = InetAddress.getLocalHost();
-
-
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		return x.getHostAddress();
-
+			List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+			for (NetworkInterface intf : interfaces) {
+				List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+				for (InetAddress addr : addrs) {
+					if (!addr.isLoopbackAddress()) {
+						String sAddr = addr.getHostAddress();
+						boolean isIPv4 = sAddr.indexOf(':')<0;
+						if (isIPv4) {
+							return sAddr;
+						}
+					}
+				}
+			}
+		} catch (Exception ex) {
+		System.out.println(ex.getMessage());}
+		return null;
 	}
+
 }
 
 

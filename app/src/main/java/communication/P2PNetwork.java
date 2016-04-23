@@ -68,7 +68,6 @@ public class P2PNetwork {
 
 	public boolean findFirstNodeByPort(){
 		String myIP = this.localNode.ip;
-		myIP = "192.168.2.14"; //hardcoding to the sensor nodes' ip
 		String delims = "[.]";
 		String[] chunks = myIP.split(delims);
 
