@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.json.JSONException;
@@ -65,8 +66,8 @@ public class Node implements Serializable {
 		double y3 = 0.0;
 		double x4 = 0.0;
 		double y4 = 0.0;
-		
-		
+
+
 		/*
 		 * 1. Determine the geometry of the area, and how to split it
 		 * 	- If a square decide which axis to split
@@ -93,7 +94,7 @@ public class Node implements Serializable {
 
 			} else {
 
-				// further apart on y-axis, so split x	
+				// further apart on y-axis, so split x
 //				x1 = x1;
 //				x2 = x2;
 				x3 = x1;
@@ -206,13 +207,12 @@ public class Node implements Serializable {
 		state = SensorState.SAFE;
 	}
 
-	public JSONObject enterJSON(JSONObject route) throws JSONException {
-		int count = route.length();
-		count++;
+	public ArrayList<String> enterLocation(ArrayList<String> route) {
+
 		String coordinates = new String();
 		coordinates = String.valueOf(myLocation.getLocation()[0])+","+String.valueOf(myLocation.getLocation()[1]);
 		//route.put(String.valueOf(count), myLocation.getLocation());
-		route.put(String.valueOf(count), coordinates);
+		route.add(coordinates);
 		return route;
 	}
 

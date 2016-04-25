@@ -181,7 +181,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Criteria criteria = new Criteria();
 
-        String provider = locationManager.getBestProvider(criteria,true);
+        //String provider = locationManager.getBestProvider(criteria,true);
         List<String> providers = locationManager.getProviders(true);
         Location bestLocation = null;
         for (String providerEach : providers) {
