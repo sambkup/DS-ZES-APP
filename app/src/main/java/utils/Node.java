@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class Node implements Serializable {
 
 	public enum SensorState {
@@ -21,6 +18,8 @@ public class Node implements Serializable {
 	public P2PRegion p2pPatrolArea;
 	public NodeLocation myLocation;
 	public SensorState state;
+
+	private int heartBeatCount = 0;
 
 	public Node(NodePatrolArea myPatrolArea, P2PRegion p2pPatrolArea, NodeLocation myLocation, int port, String ip) {
 
@@ -37,7 +36,23 @@ public class Node implements Serializable {
 				this.ip);
 		clone.state = this.state;
 		return clone;
+	}
 
+	public boolean heartBeat(){
+		// increment the heatbeat counter
+		this.heartBeatCount++;
+
+		// check if the heartbeat counter is above a threshold
+		if (this.heartBeatCount > 5){
+			// above threshold mean this node is dead
+			return false;
+		}
+		return true;
+
+	}
+
+	public void resetHeartBeat(){
+		this.heartBeatCount = 0;
 	}
 
 	public boolean inMyArea(Node testNode) {
@@ -66,8 +81,8 @@ public class Node implements Serializable {
 		double y3 = 0.0;
 		double x4 = 0.0;
 		double y4 = 0.0;
-
-
+		
+		
 		/*
 		 * 1. Determine the geometry of the area, and how to split it
 		 * 	- If a square decide which axis to split
@@ -94,7 +109,7 @@ public class Node implements Serializable {
 
 			} else {
 
-				// further apart on y-axis, so split x
+				// further apart on y-axis, so split x	
 //				x1 = x1;
 //				x2 = x2;
 				x3 = x1;
@@ -169,18 +184,21 @@ public class Node implements Serializable {
 	 *            neighborNodes
 	 * @return Given a node, determine the closest node from my neighbors and return the node
 	 */
-	public Node findClosestNode(double[] latLong, HashMap<String, Node> neighborNodes) {
+	public Node findClosestNode(double[] latLong, HashMap<String, Node> neighborNodes,Node senderNode) {
 		Node returnNode = null;
-		double minDistance = 0;
+		double old_dist = Double.MAX_VALUE;
 		for (String key : neighborNodes.keySet()) {
+
 			Node neighbor = neighborNodes.get(key);
-			double dist = neighbor.myLocation.findDistance(latLong);
-			if (minDistance == 0) {
-				minDistance = dist;
-				returnNode = neighbor;
-				continue;
+			if(senderNode!=null){ //will be null for REQ_UPDATED_PATROL. 
+				if(neighbor.ip.equalsIgnoreCase(senderNode.ip)){
+					continue;
+				}
 			}
-			if (dist < minDistance) {
+			double dist = neighbor.myLocation.findDistance(latLong);
+			System.out.println("Dist to "+neighbor.getName()+" is: "+dist);
+			if (dist <= old_dist) {
+				old_dist = dist;
 				returnNode = neighbor;
 			}
 		}
@@ -211,13 +229,15 @@ public class Node implements Serializable {
 
 		String coordinates = new String();
 		coordinates = String.valueOf(myLocation.getLocation()[0])+","+String.valueOf(myLocation.getLocation()[1]);
-		//route.put(String.valueOf(count), myLocation.getLocation());
 		route.add(coordinates);
 		return route;
 	}
 
 	public String toString() {
-		return String.format("(%s:%d), %s, %s", ip, port, myLocation.toString(), myPatrolArea.toString());
+		String[] chunks = this.ip.split("[.]");
+		int nodeNum = Integer.parseInt(chunks[3])-100;
+
+		return String.format("Node %d; \tLocation: %s; \tPatrol Area: %s \tHeartbeat: %d", nodeNum, myLocation.toString(), myPatrolArea.toString(), this.heartBeatCount);
 	}
 
 }

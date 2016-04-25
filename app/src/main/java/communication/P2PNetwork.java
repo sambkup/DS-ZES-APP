@@ -222,6 +222,7 @@ public class P2PNetwork {
 				jsonRequest.setStartNodeIP(newNode.ip);
 				jsonRequest.setJsonRoute(new ArrayList<String>());
 				jsonRequest.setKind(messageKind.MSG_JSON);
+				jsonRequest.setSenderNode(localNode);
 				send(jsonRequest);
 				break;
 			case NOT_MY_AREA:

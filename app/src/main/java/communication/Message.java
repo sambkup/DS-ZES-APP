@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.json.JSONObject;
-
 import utils.Node;
 
 public class Message implements Serializable {
@@ -26,6 +24,7 @@ public class Message implements Serializable {
 	private HashMap<String, Node> neighborNodes;
 	private Node SplitNode;
 	private Node NewNode;
+	public Node senderNode;
 
 
 
@@ -36,12 +35,15 @@ public class Message implements Serializable {
 		UPDATE_PATROL_ACK,
 		NEIGHBOR_UPDATE,
 
+		HEARTBEAT,
+
 		STATE_TOGGLE,
 
 		REQ_START, //message sent from phone to nodes to get a start node
 		MY_AREA, //response sent from node to phone saying if it's in the node's patrol area
 		NOT_MY_AREA, //response sent from node to phone saying the user is not in user's patrol area
-		MSG_JSON //JSON Object passed around
+		MSG_JSON, //JSON Object passed around
+		NO_NEIGHBORS  //Sent back to the previous node if this doesnt have a safe neighbor
 	}
 
 
@@ -219,5 +221,15 @@ public class Message implements Serializable {
 	 */
 	public void setNewNode(Node newNode) {
 		NewNode = newNode;
+	}
+
+
+
+	public Node getSenderNode() {
+		return senderNode;
+	}
+
+	public void setSenderNode(Node senderNode) {
+		this.senderNode = senderNode;
 	}
 }
