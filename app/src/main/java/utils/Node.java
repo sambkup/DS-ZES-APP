@@ -1,7 +1,6 @@
 package utils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.json.JSONException;
@@ -56,7 +55,7 @@ public class Node implements Serializable {
 		double[] testLoc = testNode.myLocation.getLocation();
 		double a2 = testLoc[0];
 		double b2 = testLoc[1];
-		
+
 		double[] patrolArea = this.myPatrolArea.getRange();
 		double x1 = patrolArea[0];
 		double y1 = patrolArea[1];
@@ -74,7 +73,7 @@ public class Node implements Serializable {
 		 * 2. Split the regions
 		 * 3. decide which region belongs to which node
 		 */
-		
+
 		System.out.println("|x2-x1|="+Math.abs(x2-x1)+" |y2-y1|="+Math.abs(y2-y1)+" |x2-x1|==|y2-y1|="+(Math.abs(x2-x1) == Math.abs(y2-y1))+" ||x2-x1|-|y2-y1||<0.000001"+(Math.abs((Math.abs(x2-x1) - Math.abs(y2-y1))) < 0.000001));
 		// approximately square
 		if (Math.abs((Math.abs(x2-x1) - Math.abs(y2-y1))) < 0.000001   ){
@@ -86,7 +85,7 @@ public class Node implements Serializable {
 				x4 = x2;
 				x2 = x2+Math.abs(((x2-x1)/2));
 				x3 = x2;
-				
+
 //				y1 = y1;
 //				y2 = y2;
 				y3 = y1;
@@ -99,7 +98,7 @@ public class Node implements Serializable {
 //				x2 = x2;
 				x3 = x1;
 				x4 = x2;
-				
+
 //				y1 = y1;
 				y4 = y2;
 				y2 = y1 + Math.abs(((y2-y1)/2));
@@ -113,45 +112,45 @@ public class Node implements Serializable {
 //			x2 = x2;
 			x3 = x1;
 			x4 = x2;
-			
+
 //			y1 = y1;
 			y4 = y2;
 			y2 = y1 + Math.abs(((y2-y1)/2));
 			y3 = y2;
 
-			
-			
-			
-			
+
+
+
+
 		} else {
 			// x2-x1 is longer, so split along x
 //			x1 = x1;
 			x4 = x2;
 			x2 = x2+Math.abs(((x2-x1)/2));
 			x3 = x2;
-			
+
 //			y1 = y1;
 //			y2 = y2;
 			y3 = y1;
 			y4 = y2;
-			
-			
+
+
 		}
-		
-		
+
+
 		patrolArea[0] = x1;
 		patrolArea[1] = y1;
 		patrolArea[2] = x2;
-		patrolArea[3] = y2;		
+		patrolArea[3] = y2;
 		NodePatrolArea patrolArea1 = new NodePatrolArea(patrolArea);
-		
+
 		double[] testPatrol = new double[4];
 		testPatrol[0] = x3;
 		testPatrol[1] = y3;
 		testPatrol[2] = x4;
-		testPatrol[3] = y4;	
+		testPatrol[3] = y4;
 		NodePatrolArea patrolArea2 = new NodePatrolArea(testPatrol);
-		
+
 		if (patrolArea1.inMyArea(testNode.myLocation)){
 			//patrol area 1 belongs to testNode
 			this.myPatrolArea = patrolArea2;
@@ -160,7 +159,7 @@ public class Node implements Serializable {
 			this.myPatrolArea = patrolArea1;
 			testNode.myPatrolArea = patrolArea2;
 		}
-		
+
 		return testNode;
 	}
 
@@ -186,7 +185,7 @@ public class Node implements Serializable {
 		}
 		return returnNode;
 	}
-	
+
 	public boolean isNeighbor(Node testNode) {
 		return myPatrolArea.isNeighbor(testNode.myPatrolArea);
 	}
@@ -207,12 +206,13 @@ public class Node implements Serializable {
 		state = SensorState.SAFE;
 	}
 
-	public ArrayList<String> enterLocation(ArrayList<String> route) {
-		
+	public JSONObject enterJSON(JSONObject route) throws JSONException {
+		int count = route.length();
+		count++;
 		String coordinates = new String();
 		coordinates = String.valueOf(myLocation.getLocation()[0])+","+String.valueOf(myLocation.getLocation()[1]);
 		//route.put(String.valueOf(count), myLocation.getLocation());
-		route.add(coordinates);
+		route.put(String.valueOf(count), coordinates);
 		return route;
 	}
 

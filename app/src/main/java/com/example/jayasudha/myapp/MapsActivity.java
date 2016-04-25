@@ -37,6 +37,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,LocationListener {
 
@@ -177,11 +178,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         /*get lat lon values*/
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
+
         Criteria criteria = new Criteria();
 
         String provider = locationManager.getBestProvider(criteria,true);
+        List<String> providers = locationManager.getProviders(true);
+        Location bestLocation = null;
+        for (String providerEach : providers) {
+            Location l = locationManager.getLastKnownLocation(providerEach);
+            if (l == null) {
+                continue;
+            }
+            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                // Found best last known location: %s", l);
+                bestLocation = l;
+            }
+        }
+        Location myLocation = bestLocation;
 
-        Location myLocation = locationManager.getLastKnownLocation(provider);
+        //Location myLocation =  locationManager.getLastKnownLocation(provider);
         int MY_PERMISSION_ACCESS_COURSE_LOCATION = 1000;
         if ( Build.VERSION.SDK_INT >= 23 &&
                 ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
