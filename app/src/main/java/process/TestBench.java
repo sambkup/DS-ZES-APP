@@ -57,7 +57,7 @@ public class TestBench {
 		// pos is the position of user and dest is his destination. Parse pos into double.
 		//TODO : CHANGE DEST TO DOUBLE[] TOO
 
-		pos = "40.4431325,-79.9423925"; //delete this
+	//	pos = "40.4431325,-79.9423925"; //delete this
 		/* set phone's location */
 		String latLng[] = pos.split(",");
 		double location[] = new double[2];
