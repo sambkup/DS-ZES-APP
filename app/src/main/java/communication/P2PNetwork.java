@@ -96,9 +96,10 @@ public class P2PNetwork {
 				message.setDestLoc("40.44316,-79.9422"); // node 16 coordinates
 				//	message.setDestLoc(TestBench.destinationUser);
 
-
+				message.setSenderNode(localNode);
 				message.setPhoneIP(localNode.ip);
 				message.setPhonePort(localNode.port);
+				message.setNode(localNode);
 				send(message);
 				return true;
 			} catch (UnknownHostException e) {
@@ -216,6 +217,7 @@ public class P2PNetwork {
 			case MY_AREA:
 				System.out.println("Received \"MY_AREA\"");
 				Message jsonRequest = new Message(newNode.ip,newNode.port,messageKind.MSG_JSON, this.localNode);
+				jsonRequest.setSenderNode(localNode);
 				jsonRequest.setPhoneIP(this.localNode.ip);
 				jsonRequest.setPhonePort(this.localNode.port);
 				jsonRequest.setDestLoc(TestBench.destinationUser);
@@ -231,6 +233,7 @@ public class P2PNetwork {
 				message.setKind(messageKind.REQ_START);
 				message.setDestIP(newDest.ip);
 				message.setDestPort(newDest.port);
+				message.setSenderNode(localNode);
 				send(message);
 				break;
 			default:
