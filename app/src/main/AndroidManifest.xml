@@ -54,6 +54,11 @@
             android:label="@string/title_activity_client"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
+        <activity
+            android:name=".GameOver"
+            android:label="@string/title_activity_game_over"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
     </application>
 
 </manifest>

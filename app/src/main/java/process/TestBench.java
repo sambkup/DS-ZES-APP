@@ -66,7 +66,7 @@ public class TestBench {
 
 		/*set destination */
 		destinationUser = dest;
-		destinationUser = "40.4429675,-79.9422275";
+		//destinationUser = "40.4429675,-79.9422275";
 
 		// --------------------------------
 		// initialize - get necessary parameter inputs

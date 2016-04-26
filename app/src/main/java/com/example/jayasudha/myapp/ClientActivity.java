@@ -59,7 +59,7 @@ public class ClientActivity extends AppCompatActivity {
                     dest = extras.getString("destinationLocation");
                     System.out.println("position " + pos);
                     message = pos;
-                    pos = "40.4431325,-79.9423925";
+                    //pos = "40.4431325,-79.9423925";
                     String[] coordinates = pos.split(",");
                     Double lat = Double.parseDouble(coordinates[0]);
                     Double lon = Double.parseDouble(coordinates[1]);

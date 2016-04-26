@@ -9,4 +9,5 @@
     </string-array>
     <string name="title_activity_socket">SocketActivity</string>
     <string name="title_activity_client">ClientActivity</string>
+    <string name="title_activity_game_over">GameOver</string>
 </resources>
