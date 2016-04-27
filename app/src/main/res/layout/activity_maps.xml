@@ -29,7 +29,9 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Set Start"
+            android:text="Set Points"
+            android:textOn="Set Source"
+            android:textOff="Set Dest"
             android:id="@+id/toggleButton"
             android:layout_alignParentTop="true"
             android:layout_alignLeft="@+id/routeButton"

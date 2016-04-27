@@ -143,7 +143,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 markerDest.showInfoWindow();
 
                                 destination = String.valueOf(markerDest.getPosition().latitude) + "," + String.valueOf(markerDest.getPosition().longitude);
-                                Toast.makeText(MapsActivity.this, destination, Toast.LENGTH_SHORT).show();
+                      //          Toast.makeText(MapsActivity.this, destination, Toast.LENGTH_SHORT).show();
 
                             }
                         } else {
@@ -159,7 +159,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                                 markerSource.showInfoWindow();
                                 source = String.valueOf(markerSource.getPosition().latitude) + "," + String.valueOf(markerSource.getPosition().longitude);
-                                Toast.makeText(MapsActivity.this, source, Toast.LENGTH_SHORT).show();
+                  //              Toast.makeText(MapsActivity.this, source, Toast.LENGTH_SHORT).show();
 
                             }
                         }
