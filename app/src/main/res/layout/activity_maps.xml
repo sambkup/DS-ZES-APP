@@ -22,9 +22,20 @@
             android:text="GET ROUTE!"
             android:id="@+id/routeButton"
             android:onClick="getRoute"
-            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="85dp" />
+            android:layout_marginBottom="83dp" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set Start"
+            android:id="@+id/toggleButton"
+            android:layout_alignParentTop="true"
+            android:layout_alignLeft="@+id/routeButton"
+            android:layout_alignStart="@+id/routeButton"
+            android:layout_marginTop="64dp"
+            android:checked="true" />
 
     </RelativeLayout>
 

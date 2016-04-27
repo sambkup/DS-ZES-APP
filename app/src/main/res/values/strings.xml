@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Zombie Defense System</string>
+    <string name="app_name">Zombie Evasion System</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_maps">Map</string>
     <string-array name="destination_array">

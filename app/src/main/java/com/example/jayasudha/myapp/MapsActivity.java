@@ -17,7 +17,10 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,13 +45,20 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,LocationListener {
 
     private GoogleMap mMap;
+    private ToggleButton toggle;
     private LatLng latLng;
     private  Location loc;
     private Marker marker;
+    private Marker markerSource;
+    private Marker markerDest;
+
+    public String selectedLocation = new String();
     Geocoder geocoder;
     static final int STATIC_INTEGER_VALUE = 1;
     static final String PUBLIC_STATIC_STRING_IDENTIFIER = "jsonObject";
-    static String destination;
+    static String destination = new String();
+    static String source = new String();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +77,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
             mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         }
+        toggle = (ToggleButton) findViewById(R.id.toggleButton);
+        toggle.setTextOff("Set Dest");
+        toggle.setTextOn("Set Source");
+
     }
     @Override
     protected void onResume() {
@@ -102,20 +116,61 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String message = String.valueOf(point.latitude) + "," + String.valueOf(point.longitude);
                 //           Toast.makeText(MapsActivity.this, message, Toast.LENGTH_LONG).show();
                 //set destination
-                destination = message;
-
-                //remove previously placed Marker
-                if (marker != null) {
+                final LatLng newPoint = new LatLng(point.latitude,point.longitude);
+                 if (marker != null) {
                     marker.remove();
                 }
-
-                //place marker where user just clicked
-                marker = mMap.addMarker(new MarkerOptions().position(point).title("Destination")
+                marker= mMap.addMarker(new MarkerOptions().position(point).title("Location")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+
+
+                //remove previously placed Marker
+
+                toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            // The toggle is enabled, set  destination of user
+                            if (marker == null) {
+                                Toast.makeText(MapsActivity.this, "Click on your destination", Toast.LENGTH_SHORT).show();
+                            } else {
+                                if(markerDest!=null) {
+                                    markerDest.remove();
+                                }
+
+                                //place marker where user just clicked
+                                markerDest = mMap.addMarker(new MarkerOptions().position(marker.getPosition()).title("Destination")
+                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                                markerDest.showInfoWindow();
+
+                                destination = String.valueOf(markerDest.getPosition().latitude) + "," + String.valueOf(markerDest.getPosition().longitude);
+                                Toast.makeText(MapsActivity.this, destination, Toast.LENGTH_SHORT).show();
+
+                            }
+                        } else {
+                            // The toggle is disabled, set source of user
+                            if (marker == null) {
+                                Toast.makeText(MapsActivity.this, "Click on your starting point", Toast.LENGTH_SHORT).show();
+                            } else {
+                                if(markerSource!=null) {
+                                    markerSource.remove();
+                                }
+                                markerSource = mMap.addMarker(new MarkerOptions().position(marker.getPosition()).title("Source")
+                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+                                markerSource.showInfoWindow();
+                                source = String.valueOf(markerSource.getPosition().latitude) + "," + String.valueOf(markerSource.getPosition().longitude);
+                                Toast.makeText(MapsActivity.this, source, Toast.LENGTH_SHORT).show();
+
+                            }
+                        }
+                    }
+                });
+
 
 
             }
         });
+
 
     }
 
@@ -235,10 +290,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
     public void getRoute(View view)throws IOException{
         String currentPos = new String();
-        if(destination==null){
-            Toast.makeText(this, "place marker on your destination", Toast.LENGTH_SHORT).show();
+        if((destination.isEmpty())&&(source.isEmpty())){
+            Toast.makeText(this, "Set your start and end locations", Toast.LENGTH_SHORT).show();
         }
+        else if(destination.isEmpty()){
+            Toast.makeText(this, "Place marker on your destination", Toast.LENGTH_SHORT).show();
+        }
+        else if(source.isEmpty()){
+            Toast.makeText(this, "Place marker on your source", Toast.LENGTH_SHORT).show();
+        }
+
         else {
+            System.out.println("Source is " + source + "destination is " + destination);
             Intent startClientActivity = new Intent(this, ClientActivity.class);
             if(latLng == null){
                 LocationManager locM = (LocationManager) getSystemService(LOCATION_SERVICE);
