@@ -303,7 +303,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         else {
             System.out.println("Source is " + source + "destination is " + destination);
             Intent startClientActivity = new Intent(this, ClientActivity.class);
-            if(latLng == null){
+           /* if(latLng == null){
                 LocationManager locM = (LocationManager) getSystemService(LOCATION_SERVICE);
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED) {
@@ -324,8 +324,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             else {
                 currentPos = Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude);
-            }
-            startClientActivity.putExtra("currentPosition", currentPos);
+            }*/
+            startClientActivity.putExtra("currentPosition", source);
             startClientActivity.putExtra("destinationLocation", destination);
             startActivityForResult(startClientActivity, STATIC_INTEGER_VALUE);
         }
