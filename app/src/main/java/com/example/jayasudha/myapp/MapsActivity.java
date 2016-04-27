@@ -31,6 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -262,6 +263,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(myLocation!=null){
             onLocationChanged(myLocation);
         }
+
+        // show application bounds
+        PolygonOptions rectOptions = new PolygonOptions()
+                .add(new LatLng(40.44294, -79.94242), // bottom left
+                        new LatLng(40.44316, -79.94242), // bottom right
+                        new LatLng(40.44316, -79.9422), // top right
+                        new LatLng(40.44294, -79.9422))
+                        .strokeColor(0x0B00FF00);
+        mMap.addPolygon(rectOptions);
+
+        // zoom to courtyard
+        LatLng courtyard = new LatLng(40.443036, -79.942309);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(courtyard, 21));
 
     }
 
